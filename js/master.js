@@ -37,7 +37,7 @@ showSongs = (songs, section) => {
     const songsDiv = document.querySelector(sectionId);
     songs.forEach(song => {
         document.getElementById(sectionContainer).insertAdjacentHTML("afterbegin",
-            `<div class="col-6 space-divs"><div class="row"> <div class="col-6"> <img src="${song.result.song_art_image_thumbnail_url}" class="img-fluid rounded-image"> </div> <div class="col-6"> <h5 class="upper">${song.result.title}</h5> <h6>${song.result.artist_names}</h6> <span>${song.result.release_date_for_display}</span> <br><br> <span><button type="button" class="btn btn-outline-info">+ Playlist</button></span> </div> </div></div>`);
+            `<div class="col-6 space-divs"><div class="row"> <div class="col-6"> <img src="${song.result.song_art_image_thumbnail_url}" class="img-fluid rounded-image"> </div> <div class="col-6"> <h5 class="upper">${song.result.title}</h5> <h6>${song.result.artist_names}</h6> <span>${song.result.release_date_for_display}</span>  <br><br> <span><a href="${song.result.url}" target="_blank">Lyric and 30-second song ↗</a></span> <br><br> <span><button type="button" class="btn btn-outline-info">+ Playlist</button></span> </div> </div></div>`);
     });
 }
 
