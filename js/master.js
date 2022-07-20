@@ -1,8 +1,10 @@
-function sectionDisplayControl (elem) {
+let songs= []
+
+function sectionDisplayControl(elem) {
     const trendy = 'trendy-section';
     const search = 'search-section';
     const playlist = 'playlist-section';
-    if(elem == 'search-section') {
+    if (elem == 'search-section') {
         document.getElementById(search).classList.add('visible');
         document.getElementById(search).classList.remove('hidden');
         document.getElementById(trendy).classList.remove('visible');
@@ -29,34 +31,42 @@ function sectionDisplayControl (elem) {
     }
 };
 
+addSongToPlaylist = (id) => {
+    console.log('songs: ', songs)
+    const song = songs.find(s => s.result.id == id)
+    const rawPlaylist = localStorage.getItem("hhmusik_playlist.hits") || '[]';
+    const playlist = JSON.parse(rawPlaylist);
+    playlist.push(song)
+    localStorage.setItem('hhmusik_playlist.hits', JSON.stringify(playlist));
+}
+
 showSongs = (songs, section) => {
-    const sectionId = '#' + section;
     const sectionContainer = section + '-songs';
-    console.log(sectionId)
-    console.log(sectionContainer)
-    const songsDiv = document.querySelector(sectionId);
     songs.forEach(song => {
         document.getElementById(sectionContainer).insertAdjacentHTML("afterbegin",
-            `<div class="col-6 space-divs"><div class="row"> <div class="col-6"> <img src="${song.result.song_art_image_thumbnail_url}" class="img-fluid rounded-image"> </div> <div class="col-6"> <h5 class="upper">${song.result.title}</h5> <h6>${song.result.artist_names}</h6> <span>${song.result.release_date_for_display}</span>  <br><br> <span><a href="${song.result.url}" target="_blank">Lyric and 30-second song ↗</a></span> <br><br> <span><button type="button" class="btn btn-outline-info">+ Playlist</button></span> </div> </div></div>`);
+            `<div class="col-6 space-divs"><div class="row"> <div class="col-6"> <img src="${song.result.song_art_image_thumbnail_url}" class="img-fluid rounded-image"> </div> <div class="col-6"> <h5 class="upper">${song.result.title}</h5> <h6>${song.result.artist_names}</h6> <span>${song.result.release_date_for_display}</span>  <br><br> <span><a href="${song.result.url}" target="_blank">Lyric and 30-second song ↗</a></span> <br><br> <span><button type="button" class="btn btn-outline-info" onclick="addSongToPlaylist('${song.result.id}')">+ Playlist</button></span> </div> </div></div>`);
     });
 }
 
-function getSongsData(searchString, section) {
-    qSearch = searchString;
-    const newURL = 'https://genius.p.rapidapi.com/search?q=' + qSearch;
-    console.log(newURL)
-    const options = {
-        method: 'GET',
-        headers: {
-            'X-RapidAPI-Key': 'b263d3b213msh95c825121fb3327p17d590jsna288e0c76ed5',
-            'X-RapidAPI-Host': 'genius.p.rapidapi.com'
-        }
-    };
+getSongsData = async (searchString, section) => {
+    try {
+        const newURL = 'https://genius.p.rapidapi.com/search?q=' + searchString;
+        const options = {
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Key': 'b263d3b213msh95c825121fb3327p17d590jsna288e0c76ed5',
+                'X-RapidAPI-Host': 'genius.p.rapidapi.com'
+            }
+        };
 
-    fetch(newURL, options)
-        .then(result => result.json())
-        .then(songs => showSongs(songs.response.hits, section))
-        .catch(err => console.error(err));
+        let result = await fetch(newURL, options)
+        result = await result.json()
+        console.log('result: ', result)
+        songs = result.response.hits;
+        showSongs(songs, section)
+    }catch (err) {
+        console.error(err);
+    }
 }
 
 function loadHomeData() {
@@ -81,10 +91,10 @@ function loadPlaylistData() {
     showSongs(playlist, section)
 }
 
-window.onload = function() {
+window.onload = function () {
     loadHomeData();
-    document.getElementById("searchString").addEventListener("input", function() {
-        if(this.value.length < 1) {
+    document.getElementById("searchString").addEventListener("input", function () {
+        if (this.value.length < 1) {
             document.querySelector('#search-btn').disabled = true;
         } else {
             document.querySelector('#search-btn').disabled = false;
